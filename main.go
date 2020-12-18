@@ -2,9 +2,8 @@ package main
 
 import (
 	"database-converter/config"
-	"database-converter/database"
+	"database-converter/conversion"
 	"database-converter/errors"
-	"log"
 	"net/http"
 	"os"
 )
@@ -29,6 +28,7 @@ func parseArgs(list []string) (*args, *errors.ApplicationError) {
 }
 
 func main() {
+
 	args, err := parseArgs(os.Args)
 
 	if err != nil {
@@ -39,17 +39,8 @@ func main() {
 		err.ThrowPanic()
 	}
 
-	db, err := database.GetDatabase(config.GetInstance().GetSource().GetDriver())
-
-	if err != nil {
+	if err := conversion.Start(); err != nil {
 		err.ThrowPanic()
 	}
-
-	log.Println("Establishing connection with the source database.")
-	if err := db.Connect(config.GetInstance().GetSource()); err != nil {
-		err.ThrowPanic()
-	}
-
-	defer db.Disconnect()
 
 }

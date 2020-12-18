@@ -71,6 +71,7 @@ func (config *config) LoadConfig(fileName string) *errors.ApplicationError {
 	sets := viper.GetViper().GetStringMap("conversion_sets")
 
 	var setsWg sync.WaitGroup
+	var countErrors int
 	var setsChannel = make(chan interface{})
 	defer close(setsChannel)
 
@@ -87,11 +88,15 @@ func (config *config) LoadConfig(fileName string) *errors.ApplicationError {
 			}
 			if unboxed, isError := set.(*errors.ApplicationError); isError {
 				log.Println(unboxed.GetMessage())
+				countErrors++
 			}
 		}
 	}()
 
 	setsWg.Wait()
+	if countErrors > 0 {
+		return errors.BuildApplicationError(nil, fmt.Sprintf("%d set(s) parsed wrong.", countErrors), http.StatusBadRequest)
+	}
 	return nil
 }
 

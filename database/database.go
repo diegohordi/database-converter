@@ -9,10 +9,12 @@ import (
 )
 
 /*
-Holds the data related to the database connections.
+Holds the data related to the database connections and contexts.
 */
 type Connection struct {
 	conn interface{}
+	ctx interface{}
+	cancel interface{}
 }
 
 /*
@@ -38,6 +40,9 @@ func GetDatabase(driver string) (Database, *errors.ApplicationError) {
 	switch strings.ToLower(driver) {
 	case "mysql":
 		return new(MySQL), nil
+	case "mongodb":
+		return new(MongoDB), nil
+
 	}
 	return nil, errors.BuildApplicationError(nil, fmt.Sprintf("The given driver (%s) is not supported yet.", driver), http.StatusBadRequest)
 }
