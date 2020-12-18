@@ -15,10 +15,10 @@ destination:
   database: destination_database
 
 conversion_sets:
-  candidates_lists:
+  customers:
     source: customer
     destination: customers
-  candidates:
+  category:
     source: category
     destination: category
 
