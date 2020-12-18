@@ -31,10 +31,10 @@ func (set *ConversionSet) validate() *errors.ApplicationError {
 		return errors.BuildApplicationError(nil, "Set name is missing.", 0)
 	}
 	if set.source == "" {
-		return errors.BuildApplicationError(nil, "Set source is missing.", 0)
+		return errors.BuildApplicationError(nil, fmt.Sprintf("Source of set %s is missing.", set.name), 0)
 	}
 	if set.destination == "" {
-		return errors.BuildApplicationError(nil, "Set destination is missing.", 0)
+		return errors.BuildApplicationError(nil, fmt.Sprintf("Destination of set %s is missing.", set.name), 0)
 	}
 	return nil
 }
@@ -46,7 +46,7 @@ func parseConversionSet(setName string, set interface{}, channel chan interface{
 		return
 	}
 	conversionSet := new(ConversionSet)
-	conversionSet.name = utils.ToString(unboxed["name"])
+	conversionSet.name = setName
 	conversionSet.destination = utils.ToString(unboxed["destination"])
 	conversionSet.source = utils.ToString(unboxed["source"])
 	log.Printf("Parsing conversion set %s.\n", conversionSet.name)

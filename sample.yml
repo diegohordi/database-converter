@@ -1,0 +1,24 @@
+source:
+  driver: mysql
+  host: localhost
+  port: 3307
+  user: root
+  password: admin
+  database: sakila
+
+destination:
+  driver: mongodb
+  host: localhost
+  port: 27018
+  user: admin
+  password: admin
+  database: destination_database
+
+conversion_sets:
+  candidates_lists:
+    source: customer
+    destination: customers
+  candidates:
+    source: category
+    destination: category
+
