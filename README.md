@@ -9,7 +9,7 @@ GO as language.
 * [MongoDB](https://github.com/mongodb/mongo-go-driver) driver
 * [Viper](https://github.com/spf13/viper) for configuration management
 
-## Supported drivers
+## Supported drivers so far
 * MySQL
 * MongoDB
 

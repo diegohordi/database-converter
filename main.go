@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"database-converter/config"
 	"database-converter/conversion"
 	"database-converter/errors"
+	"fmt"
 	"net/http"
 	"os"
 )
@@ -28,19 +30,26 @@ func parseArgs(list []string) (*args, *errors.ApplicationError) {
 }
 
 func main() {
-
 	args, err := parseArgs(os.Args)
-
 	if err != nil {
 		err.ThrowPanic()
 	}
-
 	if err := config.GetInstance().LoadConfig(args.configFile); err != nil {
 		err.ThrowPanic()
 	}
-
-	if err := conversion.Start(); err != nil {
+	if err := conversion.Prepare(); err != nil {
 		err.ThrowPanic()
 	}
-
+	fmt.Println("Everything seems to be fine! Do you really want to convert the given databases?")
+	fmt.Println("Type yes to continue or anything else to abort.")
+	scanner := bufio.NewScanner(os.Stdin)
+	if scanner.Scan() {
+		input := scanner.Text()
+		if input == "yes" {
+			conversion.Start()
+		} else {
+			fmt.Println("Aborting the conversion. Bye!")
+			os.Exit(0)
+		}
+	}
 }
