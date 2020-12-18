@@ -1,8 +1,8 @@
 package database
 
 import (
-	"database-conversor/config"
-	"database-conversor/errors"
+	"database-converter/config"
+	"database-converter/errors"
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"

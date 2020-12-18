@@ -1,8 +1,8 @@
 package database
 
 import (
-	"database-conversor/config"
-	"database-conversor/errors"
+	"database-converter/config"
+	"database-converter/errors"
 	"fmt"
 	"net/http"
 	"strings"

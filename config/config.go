@@ -2,7 +2,7 @@ package config
 
 import (
 	"bytes"
-	"database-conversor/errors"
+	"database-converter/errors"
 	"fmt"
 	"github.com/spf13/viper"
 	"io/ioutil"

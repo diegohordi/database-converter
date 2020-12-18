@@ -1,4 +1,4 @@
 /.idea
-database-conversor
 *.iml
 test.yml
+/database-converter

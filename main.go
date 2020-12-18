@@ -1,9 +1,9 @@
 package main
 
 import (
-	"database-conversor/config"
-	"database-conversor/database"
-	"database-conversor/errors"
+	"database-converter/config"
+	"database-converter/database"
+	"database-converter/errors"
 	"log"
 	"net/http"
 	"os"
