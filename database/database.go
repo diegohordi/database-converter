@@ -3,6 +3,7 @@ package database
 import (
 	"database-converter/config"
 	"database-converter/errors"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,6 +13,7 @@ import (
 Holds the data related to the database connections and contexts.
 */
 type Connection struct {
+	config *config.DatabaseConfig
 	conn interface{}
 	ctx interface{}
 	cancel interface{}
@@ -31,6 +33,31 @@ type Database interface {
 	Disconnect from database.
 	 */
 	Disconnect() *errors.ApplicationError
+
+	/*
+	Describes the given source table/collection.
+	 */
+	Describe(source string) (*Table, *errors.ApplicationError)
+
+	/*
+	Get the proper interface for the right database type.
+	 */
+	GetInterface(columnType *sql.ColumnType) interface{}
+
+	/*
+	Feed the given channel with rows from the given table.
+	*/
+	GetRows(table *Table, columns []string, rowChannel chan interface{})
+
+	/*
+	Count rows from the given table.
+	 */
+	Count(table *Table) (int, *errors.ApplicationError)
+
+	/*
+	Insert the row into the given table.
+	 */
+	Insert(table *Table, row *Row ) *errors.ApplicationError
 }
 
 /*

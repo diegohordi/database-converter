@@ -1,3 +1,4 @@
 /.idea
 *.iml
 /database-converter
+/logs/

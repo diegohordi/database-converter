@@ -52,6 +52,9 @@ func (database *DatabaseConfig) validate(databaseType string) *errors.Applicatio
 	if database.user == "" {
 		return errors.BuildApplicationError(nil, fmt.Sprintf("%s user is missing.", databaseType), 0)
 	}
+	if database.password == "" {
+		return errors.BuildApplicationError(nil, fmt.Sprintf("%s password is missing.", databaseType), 0)
+	}
 	if database.database == "" {
 		return errors.BuildApplicationError(nil, fmt.Sprintf("%s database is missing.", databaseType), 0)
 	}

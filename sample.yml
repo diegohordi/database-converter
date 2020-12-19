@@ -12,7 +12,7 @@ destination:
   port: 27018
   user: admin
   password: admin
-  database: destination_database
+  database: destination
 
 conversion_sets:
   customers:

@@ -1,8 +1,9 @@
 # Database Converter
 
 This project was create for study purposes. Your main goal is being able to convert
-any relational databases into no-relational databases and vice-versa, using 
-GO as language.
+any (no-)relational databases into (no-)relational databases, using GO as language.
+
+If you want to join me in this project, be my guest =D
 
 ## Used libraries
 * [MySQL](https://github.com/go-sql-driver/mysql) driver
@@ -31,3 +32,13 @@ convert a MySQL database into a MongoDB database, both available as containers.
 3. Running the application
 
     `./database-converter sample.yml`
+    
+## Todo
+
+- [ ] Unit tests
+- [ ] Fix date/time data
+- [ ] Enable conversion from MongoDB -> MySQL
+- [ ] Enable truncation of destination table/collection
+- [ ] Enable composition of table/collection
+- [ ] Enable ID preservation
+- [ ] ...

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"database-converter/config"
 	"database-converter/conversion"
 	"database-converter/errors"
@@ -42,7 +41,10 @@ func main() {
 	}
 	fmt.Println("Everything seems to be fine! Do you really want to convert the given databases?")
 	fmt.Println("Type yes to continue or anything else to abort.")
-	scanner := bufio.NewScanner(os.Stdin)
+
+	conversion.Start()
+
+	/* scanner := bufio.NewScanner(os.Stdin)
 	if scanner.Scan() {
 		input := scanner.Text()
 		if input == "yes" {
@@ -51,5 +53,5 @@ func main() {
 			fmt.Println("Aborting the conversion. Bye!")
 			os.Exit(0)
 		}
-	}
+	} */
 }
