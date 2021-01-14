@@ -1,5 +1,5 @@
 source:
-  driver: mysql
+  driver: postgresql
   host: localhost
   port: 3307
   user: root

@@ -2,57 +2,42 @@ package config
 
 import (
 	"database-converter/errors"
-	"database-converter/utils"
 	"fmt"
-	"log"
-	"net/http"
 )
 
+// Holds a conversion set configuration.
 type ConversionSet struct {
 	name        string
 	source      string
 	destination string
 }
 
-func (set *ConversionSet) GetName() string {
+// Gets the name of the conversion set.
+func (set *ConversionSet) Name() string {
 	return set.name
 }
 
-func (set *ConversionSet) GetSource() string {
+// Gets the name of the source table.
+func (set *ConversionSet) Source() string {
 	return set.source
 }
 
-func (set *ConversionSet) GetDestination() string {
+// Gets the name of the destination table.
+func (set *ConversionSet) Destination() string {
 	return set.name
 }
 
+// Validates the database configuration and returns an error just if something goes wrong.
 func (set *ConversionSet) validate() *errors.ApplicationError {
 	if set.name == "" {
-		return errors.BuildApplicationError(nil, "Set name is missing.", 0)
+		return errors.WithMessageBuilder("Conversion set name is missing.").Build()
 	}
 	if set.source == "" {
-		return errors.BuildApplicationError(nil, fmt.Sprintf("Source of set %s is missing.", set.name), 0)
+		return errors.WithMessageBuilder(fmt.Sprintf("Source of conversion set %s is missing.", set.name)).Build()
 	}
 	if set.destination == "" {
-		return errors.BuildApplicationError(nil, fmt.Sprintf("Destination of set %s is missing.", set.name), 0)
+		return errors.WithMessageBuilder(fmt.Sprintf("Destination of conversion set %s is missing.", set.name)).Build()
 	}
 	return nil
 }
 
-func parseConversionSet(setName string, set interface{}, channel chan interface{}) {
-	unboxed, converted := set.(map[string]interface{})
-	if !converted {
-		channel <- errors.BuildApplicationError(nil, fmt.Sprintf("Error parsing the conversion set %s.", setName), http.StatusBadRequest)
-		return
-	}
-	conversionSet := new(ConversionSet)
-	conversionSet.name = setName
-	conversionSet.destination = utils.ToString(unboxed["destination"])
-	conversionSet.source = utils.ToString(unboxed["source"])
-	log.Printf("Parsing conversion set %s.\n", conversionSet.name)
-	if err := conversionSet.validate(); err != nil {
-		channel <- err
-		return
-	}
-	channel <- conversionSet
-}

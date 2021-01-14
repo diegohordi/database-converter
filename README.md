@@ -31,14 +31,32 @@ convert a MySQL database into a MongoDB database, both available as containers.
     
 3. Running the application
 
-    `./database-converter sample.yml`
+    `./database-converter -config=sample.yml`
+    
+4. Running unit tests
+
+    `go test ./test/...`    
     
 ## Todo
 
 - [ ] Unit tests
+- [ ] Log centralization
 - [ ] Fix date/time data
+- [ ] Enable sequential conversion 
+- [ ] Enable pagination during conversion
 - [ ] Enable conversion from MongoDB -> MySQL
 - [ ] Enable truncation of destination table/collection
 - [ ] Enable composition of table/collection
 - [ ] Enable ID preservation
+- [ ] Pipelines and map functions enabling some transformation
 - [ ] ...
+
+## Notice that...
+
+- Sometime, in the future, it could become a REST API, so, this is why you should see some 
+MarshalJSON implementations - I mean, it's not used right now, but it's there.
+
+- For simplicity's sake, I decided to use only conceptual names from relational databases.
+For example, a MongoDB Collection is represented here as a Table object.
+
+- ...

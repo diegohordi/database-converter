@@ -6,7 +6,6 @@ source:
   password: admin
   database: sakila
 destination:
-  driver: mongodb
   host: localhost
   port: 27018
   user: admin

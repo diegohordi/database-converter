@@ -15,7 +15,6 @@ destination:
 conversion_sets:
   customers:
     source: customer
-    destination: customers
   category:
     source: category
     destination: category

@@ -7,58 +7,57 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"net/http"
 	"reflect"
 	"strings"
 )
 
-type MySQL struct {
+type MySQLImpl struct {
 	connection *Connection
 }
 
-func (db *MySQL) Connect(config *config.DatabaseConfig) *errors.ApplicationError {
-	connString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", config.GetUser(), config.GetPassword(), config.GetHost(), config.GetPort(), config.GetDatabase())
+func (db *MySQLImpl) Connect(config config.DatabaseConfig) *errors.ApplicationError {
+	connString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", config.User(), config.Password(), config.Host(), config.Port(), config.Database())
 	conn, err := sql.Open("mysql", connString)
 	if err != nil {
-		return errors.BuildApplicationError(err, "Error establishing connection with database.", http.StatusBadRequest)
+		return errors.WithMessageAndSourceErrorBuilder("Error establishing connection with database.", err).Build()
 	}
-	if err:= conn.Ping(); err != nil {
-		return errors.BuildApplicationError(err, "The database is unreachable.", http.StatusBadRequest)
+	if err := conn.Ping(); err != nil {
+		return errors.WithMessageAndSourceErrorBuilder("The database is unreachable.", err).Build()
 	}
 	db.connection = &Connection{config: config, conn: conn}
 	return nil
 }
 
-func (db *MySQL) Disconnect() *errors.ApplicationError{
+func (db *MySQLImpl) Disconnect() *errors.ApplicationError {
 	if instance, check := db.connection.conn.(*sql.DB); check {
-		if err:= instance.Close(); err != nil {
-			return errors.BuildApplicationError(err, "Error closing connection.", http.StatusInternalServerError)
+		if err := instance.Close(); err != nil {
+			return errors.WithMessageAndSourceErrorBuilder("Error closing connection.", err).Build()
 		}
 	}
 	return nil
 }
 
-func (db *MySQL) Describe(source string) (*Table, *errors.ApplicationError) {
+func (db *MySQLImpl) Describe(source string) (*Table, *errors.ApplicationError) {
 	if connection, valid := db.connection.conn.(*sql.DB); valid {
 		query := fmt.Sprintf("DESCRIBE %s;", source)
 		if rows, err := connection.Query(query); err != nil {
-			return nil, errors.BuildApplicationError(err, fmt.Sprintf("Can't describe table %s.", source), http.StatusInternalServerError)
+			return nil, errors.WithMessageAndSourceErrorBuilder(fmt.Sprintf("Can't describe table %s.", source), err).Build()
 		} else {
 			table := Table{name: source}
 			defer rows.Close()
 			if columns, err := rows.ColumnTypes(); err != nil {
-				return nil, errors.BuildApplicationError(err, fmt.Sprintf("Can't fetch the table columns."), http.StatusInternalServerError)
+				return nil, errors.WithMessageAndSourceErrorBuilder(fmt.Sprintf("Can't fetch the table columns."), err).Build()
 			} else {
 				for rows.Next() {
 					values := make([]interface{}, len(columns))
 					object := map[string]interface{}{}
 					for i, column := range columns {
-						object[strings.ToLower(column.Name())] = db.GetInterface(column)
+						object[strings.ToLower(column.Name())] = db.GetInterface(*column)
 						values[i] = object[strings.ToLower(column.Name())]
 					}
 					err = rows.Scan(values...)
 					if err != nil {
-						return nil, errors.BuildApplicationError(err, fmt.Sprintf("Can't describe table %s.", source), http.StatusInternalServerError)
+						return nil, errors.WithMessageAndSourceErrorBuilder(fmt.Sprintf("Can't describe table %s.", source), err).Build()
 					}
 					colDefinition := &Column{}
 					colDefinition.name = utils.ToString(object["field"])
@@ -76,10 +75,10 @@ func (db *MySQL) Describe(source string) (*Table, *errors.ApplicationError) {
 			return &table, nil
 		}
 	}
-	return nil, errors.BuildApplicationError(nil, fmt.Sprintf("Can't describe %s.", source), http.StatusInternalServerError)
+	return nil, errors.WithMessageBuilder(fmt.Sprintf("Can't describe %s.", source)).Build()
 }
 
-func (db *MySQL) GetInterface(columnType *sql.ColumnType) interface{} {
+func (db *MySQLImpl) GetInterface(columnType sql.ColumnType) interface{} {
 	switch strings.ToLower(columnType.DatabaseTypeName()) {
 	case "char", "varchar", "tinytext", "text", "mediumtext", "longtext", "enum":
 		return new(sql.NullString)
@@ -96,40 +95,40 @@ func (db *MySQL) GetInterface(columnType *sql.ColumnType) interface{} {
 	}
 }
 
-func (db *MySQL) Count(table *Table) (int, *errors.ApplicationError) {
+func (db *MySQLImpl) Count(table Table) (int, *errors.ApplicationError) {
 	if connection, valid := db.connection.conn.(*sql.DB); valid {
 		var count int
-		query := fmt.Sprintf("SELECT COUNT(%s) FROM %s", table.GetPrimaryKey().name, table.GetName())
+		query := fmt.Sprintf("SELECT COUNT(%s) FROM %s", table.GetPrimaryKey().name, table.Name())
 		row := connection.QueryRow(query)
 		err := row.Scan(&count)
 		if err != nil {
-			return 0, errors.BuildApplicationError(nil, fmt.Sprintf("Can't count rows."), http.StatusInternalServerError)
+			return 0, errors.WithMessageAndSourceErrorBuilder(fmt.Sprintf("Can't count rows."), err).Build()
 		}
 		return count, nil
 	}
 	return 0, nil
 }
 
-func (db *MySQL) GetRows(table *Table, columns []string, rowChannel chan interface{}) {
+func (db *MySQLImpl) GetRows(table Table, columns []string, rowChannel chan interface{}) {
 	if connection, valid := db.connection.conn.(*sql.DB); valid {
-		query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(columns[:], ", "), table.GetName())
+		query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(columns[:], ", "), table.Name())
 		if rows, err := connection.Query(query); err != nil {
-			rowChannel <- errors.BuildApplicationError(err, fmt.Sprintf("Error performing the query"), http.StatusInternalServerError)
+			rowChannel <- errors.WithMessageAndSourceErrorBuilder(fmt.Sprintf("Error performing the query."), err).Build()
 		} else {
 			defer rows.Close()
 			if columns, err := rows.ColumnTypes(); err != nil {
-				rowChannel <- errors.BuildApplicationError(err, fmt.Sprintf("Can't fetch the table columns."), http.StatusInternalServerError)
+				rowChannel <- errors.WithMessageAndSourceErrorBuilder(fmt.Sprintf("Can't fetch the table columns."), err).Build()
 			} else {
 				for rows.Next() {
 					values := make([]interface{}, len(columns))
 					object := map[string]interface{}{}
 					for i, column := range columns {
-						object[strings.ToLower(column.Name())] = db.GetInterface(column)
+						object[strings.ToLower(column.Name())] = db.GetInterface(*column)
 						values[i] = object[strings.ToLower(column.Name())]
 					}
 					err = rows.Scan(values...)
 					if err != nil {
-						rowChannel <- errors.BuildApplicationError(err, fmt.Sprintf("Can't fetch row."), http.StatusInternalServerError)
+						rowChannel <- errors.WithMessageAndSourceErrorBuilder(fmt.Sprintf("Can't fetch row."), err).Build()
 					} else {
 						for _, column := range columns {
 							object[strings.ToLower(column.Name())] = utils.GetRawValue(object[strings.ToLower(column.Name())])
@@ -142,6 +141,6 @@ func (db *MySQL) GetRows(table *Table, columns []string, rowChannel chan interfa
 	}
 }
 
-func (db *MySQL) Insert(table *Table, row *Row) *errors.ApplicationError {
+func (db *MySQLImpl) Insert(table Table, row Row) *errors.ApplicationError {
 	panic("implement me")
 }

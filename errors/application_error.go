@@ -1,36 +1,47 @@
 package errors
 
 import (
-	"fmt"
-	"log"
+	"encoding/json"
 )
 
+// Common struct for the Application errors
 type ApplicationError struct {
-	error error
-	message string
-	code int
+	sourceError error
+	message     string
+	code        int
 }
 
-func BuildApplicationError(err error, message string, code int) *ApplicationError{
-	return &ApplicationError{
-		error:   err,
-		message: message,
-		code:    code,
-	}
+// Gets the source error from this application error.
+func (err *ApplicationError) SourceError() error {
+	return err.sourceError
 }
 
-func (err *ApplicationError) GetError() error {
-	return err.error
-}
-
-func (err *ApplicationError) GetMessage() string {
+// Gets the message from this application error.
+func (err *ApplicationError) Message() string {
 	return err.message
 }
 
-func (err *ApplicationError) GetCode() int {
+// Gets the code from this application error.
+func (err *ApplicationError) Code() int {
 	return err.code
 }
 
-func (err *ApplicationError) ThrowPanic() {
-	log.Fatal(fmt.Errorf(err.GetMessage(), ": %s \n", err.GetError()))
+func (err *ApplicationError) Error() string {
+	return err.message
+}
+
+func (err *ApplicationError) MarshalJSON() ([]byte, error) {
+	value, jsonErr := json.Marshal(struct {
+		Code        int         `json:"code"`
+		Message     string      `json:"message"`
+		SourceError interface{} `json:"source"`
+	}{
+		Code:        err.code,
+		Message:     err.message,
+		SourceError: err.sourceError,
+	})
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+	return value, nil
 }

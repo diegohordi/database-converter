@@ -2,9 +2,7 @@ package utils
 
 import "database/sql"
 
-/*
-Converts a given value into a string.
-*/
+// Converts a given value into a string.
 func ToString(value interface{}) string {
 	if value, isString := value.(string); isString {
 		return value
@@ -18,6 +16,9 @@ func ToString(value interface{}) string {
 	return ""
 }
 
+
+// Encapsulates the logic to check the raw type of the given value in order to get
+// its raw value, especially used as an abstraction to sql package.
 func GetRawValue(value interface{}) interface{} {
 	switch v := value.(type) {
 	case string:

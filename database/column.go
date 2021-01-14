@@ -1,11 +1,6 @@
 package database
 
-type KeyType string
-
-const (
-	PrimaryKey KeyType = "PRIMARY"
-)
-
+// Holds a table column representation
 type Column struct {
 	name string
 	dataType string
@@ -15,26 +10,32 @@ type Column struct {
 	extras string
 }
 
-func (col *Column) GetName() string {
+// Gets the Column name.
+func (col *Column) Name() string {
 	return col.name
 }
 
-func (col *Column) GetDataType() string {
+// Gets the Column data type.
+func (col *Column) DataType() string {
 	return col.dataType
 }
 
-func (col *Column) IsNull() bool {
+// Determines if the Column can be null.
+func (col *Column) Null() bool {
 	return col.null
 }
 
-func (col *Column) GetKey() KeyType {
+// Gets the Column key type.
+func (col *Column) KeyType() KeyType {
 	return col.key
 }
 
-func (col *Column) GetDefaultValue() interface{} {
+// Gets the Column default value.
+func (col *Column) DefaultValue() interface{} {
 	return col.defaultValue
 }
 
+// Gets the Column extra information.
 func (col *Column) GetExtras() string {
 	return col.extras
 }

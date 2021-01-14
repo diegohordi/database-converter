@@ -4,7 +4,6 @@ source:
   port: 3307
   user: root
   password: admin
-  database: sakila
 destination:
   driver: mongodb
   host: localhost

@@ -11,7 +11,6 @@ destination:
   port: 27018
   user: admin
   password: admin
-  database: destination
 conversion_sets:
   customers:
     source: customer

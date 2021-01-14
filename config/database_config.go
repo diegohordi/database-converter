@@ -3,80 +3,87 @@ package config
 import (
 	"database-converter/errors"
 	"fmt"
-	"github.com/spf13/viper"
 )
 
+// Holds the database configurations.
 type DatabaseConfig struct {
-	driver   string
-	host     string
-	port     int
-	user     string
-	password string
-	database string
+	databaseType DatabaseType
+	driver       DatabaseDriver
+	host         string
+	port         int
+	user         string
+	password     string
+	name         string
 }
 
-func (database *DatabaseConfig) GetDriver() string {
-	return database.driver
-}
-
-func (database *DatabaseConfig) GetHost() string {
-	return database.host
-}
-
-func (database *DatabaseConfig) GetPort() int {
-	return database.port
-}
-
-func (database *DatabaseConfig) GetUser() string {
-	return database.user
-}
-
-func (database *DatabaseConfig) GetPassword() string {
-	return database.password
-}
-
-func (database *DatabaseConfig) GetDatabase() string {
-	return database.database
-}
-
-func (database *DatabaseConfig) validate(databaseType string) *errors.ApplicationError {
-	if database.driver == "" {
-		return errors.BuildApplicationError(nil, fmt.Sprintf("%s driver is missing.", databaseType), 0)
+// Database config constructor.
+func NewDatabaseConfig(
+	databaseType DatabaseType,
+	driver DatabaseDriver,
+	host string,
+	port int,
+	user string,
+	password string,
+	name string) (*DatabaseConfig, *errors.ApplicationError) {
+	config := &DatabaseConfig{databaseType: databaseType, driver: driver, host: host, port: port, user: user, password: password, name: name}
+	if err := config.validate(); err != nil {
+		return nil, err
 	}
-	if database.host == "" {
-		return errors.BuildApplicationError(nil, fmt.Sprintf("%s host is missing.", databaseType), 0)
-	}
-	if database.port == 0 {
-		return errors.BuildApplicationError(nil, fmt.Sprintf("%s port is missing.", databaseType), 0)
-	}
-	if database.user == "" {
-		return errors.BuildApplicationError(nil, fmt.Sprintf("%s user is missing.", databaseType), 0)
-	}
-	if database.password == "" {
-		return errors.BuildApplicationError(nil, fmt.Sprintf("%s password is missing.", databaseType), 0)
-	}
-	if database.database == "" {
-		return errors.BuildApplicationError(nil, fmt.Sprintf("%s database is missing.", databaseType), 0)
-	}
-	return nil
+	return config, nil
 }
 
-func parseDatabaseConfig(databaseType string, config *config, viper *viper.Viper) *errors.ApplicationError {
-	database := DatabaseConfig{}
-	database.driver = viper.GetString(fmt.Sprintf("%s.driver", databaseType))
-	database.port = viper.GetInt(fmt.Sprintf("%s.port", databaseType))
-	database.host = viper.GetString(fmt.Sprintf("%s.host", databaseType))
-	database.user = viper.GetString(fmt.Sprintf("%s.user", databaseType))
-	database.password = viper.GetString(fmt.Sprintf("%s.password", databaseType))
-	database.database = viper.GetString(fmt.Sprintf("%s.database", databaseType))
-	if err := database.validate(databaseType); err != nil {
-		return err
+// Gets the database driver.
+func (config *DatabaseConfig) Driver() DatabaseDriver {
+	return config.driver
+}
+
+// Gets the database host.
+func (config *DatabaseConfig) Host() string {
+	return config.host
+}
+
+// Gets the database port.
+func (config *DatabaseConfig) Port() int {
+	return config.port
+}
+
+// Gets the database user.
+func (config *DatabaseConfig) User() string {
+	return config.user
+}
+
+// Gets the user password.
+func (config *DatabaseConfig) Password() string {
+	return config.password
+}
+
+// Gets the database name.
+func (config *DatabaseConfig) Database() string {
+	return config.name
+}
+
+// Validates the database configuration and returns an error just if something goes wrong.
+func (config *DatabaseConfig) validate() *errors.ApplicationError {
+	if config.databaseType == 0 {
+		return errors.WithMessageBuilder(fmt.Sprintf("Database type is missing.")).Build()
 	}
-	switch databaseType {
-	case "source":
-		config.source = &database
-	case "destination":
-		config.destination = &database
+	if config.driver == "" {
+		return errors.WithMessageBuilder(fmt.Sprintf("%s driver is missing.", config.databaseType)).Build()
+	}
+	if config.host == "" {
+		return errors.WithMessageBuilder(fmt.Sprintf("%s host is missing.", config.databaseType)).Build()
+	}
+	if config.port == 0 {
+		return errors.WithMessageBuilder(fmt.Sprintf("%s port is missing.", config.databaseType)).Build()
+	}
+	if config.user == "" {
+		return errors.WithMessageBuilder(fmt.Sprintf("%s user is missing.", config.databaseType)).Build()
+	}
+	if config.password == "" {
+		return errors.WithMessageBuilder(fmt.Sprintf("%s password is missing.", config.databaseType)).Build()
+	}
+	if config.name == "" {
+		return errors.WithMessageBuilder(fmt.Sprintf("%s name is missing.", config.databaseType)).Build()
 	}
 	return nil
 }
